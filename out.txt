@@ -1,0 +1,29 @@
+xx
+console.log($('h2.title').text()); // Outputs: Hello world
+$('h2.title').find('.subtitle').text(); // Outputs: "" (empty string, as there is no .subtitle element)
+// You can also manipulate the DOM using Cheerio
+$('h2.title').text('Hello Cheerio');
+const $ = cheerio.load('<h2 class="title">Hello world</h2>');
+$('h2.title').text(); // "Hello world"
+
+import * as cheerio from 'cheerio';
+import request from 'request-promise';
+
+const url = 'https://123job.vn/tuyen-dung'; // URL của trang web cần lấy dữ liệu
+//The $ function returns a Cheerio object, which is similar to an array of DOM elements. 
+request('https://123job.vn/tuyen-dung', (error, response, html) => { // gửi request đến trang 
+    //console.log(response.statusCode); // 200, kiểm tra xem kết nối thành công không :D
+    const $ = cheerio.load(url); // load HTML
+    console.log(html); // lấy tiêu đề của trang
+    $('.job__list js-code-position').each((index, el) => { // lặp từng phần tử có class là job__list-item
+        
+    // trong mỗi phần tử, ta sẽ lấy tên job
+        const job = $(el).find('.job__list-item-title').text(); // lấy tên job, được nằm trong thẻ a < .job__list-item-title
+    
+        console.log(job);
+    });
+});
+
+fs.appendFileSync('news.txt', `${titleNews.trim()}\n${des.trim()}\n--------------------------\n`, (err) => {
+        if (err) throw err; // nếu có lỗi thì ném ra lỗi
+    }) // ghi vào file news.txt
