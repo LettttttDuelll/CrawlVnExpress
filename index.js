@@ -1,4 +1,4 @@
-// index.js
+// index.js crawls === cherrio
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import fs from 'fs';
