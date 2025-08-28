@@ -1,27 +1,21 @@
 import puppeteer from "puppeteer";
-import fs from "fs";
 const url = "https://vnexpress.net/thoi-su/80-nam-quoc-khanh-p4";
 
-const run = async () => {
-    const browser = await puppeteer.launch({ headless: true });
+export const run = async () => {
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
 
-   //await page.goto(url, { waitUntil: "networkidle2" });
     await page.goto(url, { waitUntil: "domcontentloaded" });
 
     await page.waitForSelector("article.item-news");    
 
     const datas = await page.$$eval("article.item-news", els => els.map(el => {
-        const title = el.querySelector(".title-news a")?.textContent || "";
-        const desc = el.querySelector(".description a")?.textContent || "";
-        const img = el.querySelector(".lazy.loading")?.src || "";
-        return { title, desc, img };
+        const title = el.querySelector(".title-news a")?.textContent || "1";
+        const description = el.querySelector(".description a")?.textContent || "1";
+        const img = el.querySelector(".lazy.loading")?.src || "1";
+        return { title, description, img };
     }));
-    console.log(datas);
 
-    fs.appendFileSync("news3.0.json", JSON.stringify(datas, null, 2) + "\n");
-
-    console.log("Dữ liệu đã được ghi vào file news3.0.json");
     await browser.close();
+    return datas;  
 };
-run();

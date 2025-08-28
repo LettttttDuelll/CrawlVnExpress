@@ -1,44 +1,50 @@
-import{ MongoClient, ServerApiVersion } from 'mongodb';
-import newsData from './news3.0.json' assert { type: 'json' };
-
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { run } from './test.js';
+import News from './models/news.js';
+
 dotenv.config();
-// Connection URI
 
-const uri = linkdb ;
+const uri = process.env.linkdb;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-async function run() {
+async function main() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    
-    //create or access the database
-    const news = client.db("news");
+    // 1. Kết nối tới MongoDB qua Mongoose
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("✅ Connected to MongoDB via Mongoose!");
 
-    //create or access the collection
-    const collection = news.collection("vnexpress");
+    // 2. Lấy dữ liệu từ file test.js
+    const datas = await run();
+    if (!datas || datas.length === 0) {
+      console.log("⚠ Không có dữ liệu để import.");
+      return;
+    }
 
-    // Insert the JSON data into the collection
-    const result = await collection.insertMany(newsData);
-    
-    //check the inserted data
-    console.log(`✅ Imported ${result.insertedCount} documents`);
+    // 3. Chuyển đổi thành mảng đối tượng News
+    const data = datas.map(item => ({
+      title: item.title,
+      description: item.description,
+      img: item.img,
+      timeStamp: new Date() // nếu muốn thêm trường thời gian
+    }));
 
+    // 4. Xóa dữ liệu cũ (nếu muốn làm mới)
+    // await News.deleteMany({});
+
+    // 5. Thêm dữ liệu mới
+    const result = await News.insertMany(data);
+    console.log(`✅ Imported ${result.length} documents`);
+
+  } catch (error) {
+    console.error("❌ Lỗi khi import:", error);
   } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    // Đóng kết nối
+    await mongoose.disconnect();
   }
 }
-run().catch(console.dir);
+
+main();
+                  
