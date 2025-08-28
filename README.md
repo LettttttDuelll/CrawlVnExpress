@@ -1,5 +1,5 @@
 npm i install
 
-node server.js
+node MongoDB.js
 
 node test.js
