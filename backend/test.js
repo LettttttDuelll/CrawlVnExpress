@@ -1,8 +1,8 @@
 import puppeteer from "puppeteer";
 
-const url = "https://vnexpress.net";
+//const url = "https://vnexpress.net";
 
-export const run = async () => {
+export const run = async (url) => {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded" });
@@ -27,22 +27,34 @@ export const run = async () => {
     let datas = [];
     for (const link of links) {
         try {
-            const browser1 = await puppeteer.launch({ headless: false });
+            const browser1 = await puppeteer.launch({ headless: true });
             const page1 = await browser1.newPage();
+
             await page1.goto(link, { waitUntil: "domcontentloaded" });
             await page1.waitForSelector("h1.title-detail");
+
+            //await page1.waitForSelector("h1.title-detail");
+            await page1.waitForSelector("div.tags ");
+
             const data = await page1.evaluate(() => {
                 const title = document.querySelector("h1.title-detail")?.innerText || "No title found";
-                const description = document.querySelector("p.description")?.innerText || "No description found";
+                const description = document.querySelector("p.description")
+                    ? document.querySelector("p.description").innerText.replace(document.querySelector("span.location-stamp")?.innerText || "", "").trim()
+                    : "No description found";
                 const category = document.querySelector("ul.breadcrumb li a")?.innerText || "No category found";
-                //const tags = Array.from(document.querySelectorAll("div.tags h4.item-tag a")).map(el => el.innerText.trim())|| [];
-                const tags = document.querySelector("a.link-topic-detail h2")?.innerText.trim()|| "No tags found";
+                //const tags = document.querySelector("div.tags h4.item-tag a")?.innerText || "No tags found";
+                const tags = [...document.querySelectorAll("div.tags h4.item-tag a")]
+                    .map(tag => tag.innerText.trim())
+                    .filter(Boolean);
                 const content = document.querySelector("article.fck_detail")?.innerText || "No content found";
                 const img = document.querySelector("article.fck_detail img")?.src || "No image found";
                 const imgName = img.split('/').pop() || "No image name found";
-                const author = document.querySelector("p.Normal strong")?.innerText || "No author found";
+                const strongs = document.querySelectorAll("p.Normal strong");
+                const author = strongs.length > 0
+                    ? strongs[strongs.length - 1].innerText
+                    : "No author found";
                 const date = document.querySelector("span.date")?.innerText || "No date found";
-                return { title: title, description: description, img: img, imgName: imgName, author: author, category: category, tags: tags, content: content, date: date};
+                return { title: title, description: description, img: img, imgName: imgName, author: author, category: category, tags: tags, content: content, date: date };
             });
             datas.push(data);
             await browser1.close();
@@ -53,7 +65,7 @@ export const run = async () => {
     }
     await browser.close();
     datas.forEach(element => {
-        console.log(element.author);
+        console.log(element.tags);
         //date ok
         //title ok
         //content ok
@@ -61,4 +73,4 @@ export const run = async () => {
     });
     return datas;
 };
-run();
+//run();

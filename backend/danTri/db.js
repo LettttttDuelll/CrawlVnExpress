@@ -1,14 +1,15 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { run } from './test.js';
+import { run } from './dantri.js';
 //import News from './models/news.js';
-import DetailNews from './models/detailNews.js';
+import DetailNews from '../models/detailNews.js';
 import cron from "node-cron";
-import DetailNews1 from './models/detailNews1.js';
 
 dotenv.config();
 
 const uri = process.env.linkdb;
+
+//const url = "https://dantri.com.vn/";
 
 async function main(url) {
   const today = new Date().toISOString().split('T')[0]; // "2025-09-04"
@@ -20,8 +21,10 @@ async function main(url) {
     });
     console.log("✅ Connected to MongoDB via Mongoose!");
 
+    const datas = await run("https://dantri.com.vn/");  // truyền url rõ ràng
+
     // 2. Lấy dữ liệu từ file test.js
-    const datas = await run(url);
+    //const datas = await run(url);
     if (!datas || datas.length === 0) {
       console.log("⚠ Không có dữ liệu để import.");
       return;
@@ -44,14 +47,13 @@ async function main(url) {
     // await News.deleteMany({});
 
     // 5. Thêm dữ liệu mới
-    const result = await DetailNews1.insertMany(data);
+    const result = await DetailNews.insertMany(data);
     console.log(`✅ Imported ${result.length} documents`);
     return `✅ Imported ${result.length} documents`;
     //return result;
 
   } catch (error) {
     console.error("❌ Lỗi khi import:", error);
-    //return `❌ Lỗi khi import: ${error.message}`;
   } finally {
     // Đóng kết nối
     await mongoose.disconnect();
@@ -60,8 +62,9 @@ async function main(url) {
 
 // ─── CRON JOB: chạy 6h sáng hàng ngày ───
 //cron.schedule("0 6 * * *", () => {
-//main();
-//console.log("🔄 Cron job executed at 6:00 AM");
+  //main();
+ // console.log("🔄 Cron job executed at 6:00 AM");
 //});
 //main();
 export { main };
+main();

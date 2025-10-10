@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const detailNewsSchema = new mongoose.Schema({
+const detailNewsSchema1 = new mongoose.Schema({
     //title: { type: String, required: true },
     title: { type: String, required: true, unique: true }, // ✅ thêm unique
     description: { type: String, required: true },
@@ -13,5 +13,5 @@ const detailNewsSchema = new mongoose.Schema({
     author: { type: String, required: false },
     date: { type: String }
 })
-const DetailNews = mongoose.model("DetailNews", detailNewsSchema)
-export default DetailNews
+const DetailNews1 = mongoose.model("DetailNews1", detailNewsSchema1)
+export default DetailNews1
