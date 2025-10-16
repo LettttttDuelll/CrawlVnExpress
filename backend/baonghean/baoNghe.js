@@ -3,7 +3,8 @@ import puppeteer from "puppeteer";
 const url = "https://baonghean.vn/";
 
 export const run = async () => {
-    const browser = await puppeteer.launch({ headless: false });
+    //const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded" });
     let links = await page.$$eval("a", els =>
